@@ -1,14 +1,14 @@
-import requests
+import requests, os
 from send_email import send_email
 
 topic = "tesla"
 
-api_key = "f2f9ea6f36f04891a67f532ef9691935"
+api_key = os.getenv("NEWS_API_KEY")
 url = "https://newsapi.org/v2/everything?" \
       f"q={topic}&" \
       "from=2024-09-20" \
       "&sortBy=publishedAt&" \
-      "apiKey=f2f9ea6f36f04891a67f532ef9691935&" \
+      f"apiKey={api_key}&" \
       "language=en"
 
 # Make a request
