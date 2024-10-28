@@ -1,6 +1,14 @@
-import requests
+import requests, time
 import selectorlib
 from emailing import send_email
+import sqlite3
+
+# INSERT INTO events VALUES('Agnee','Mumbai','2024.11.06')
+# SELECT * FROM events WHERE band='Indian Ocean'
+# DELETE FROM events WHERE band='Agnee'
+
+connection = sqlite3.connect("data.db")
+
 
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
@@ -18,19 +26,35 @@ def extract(source):
     return value
 
 def store(extracted):
-    with open("data.txt", "a") as file:
-        file.write(extracted + "\n")
+    # with open("data.txt", "a") as file:
+    #     file.write(extracted + "\n")
+    row = extracted.split(",")
+    row = [item.strip() for item in row]
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO events VALUES(?,?,?)", row)
+    connection.commit()
 
-def read():
-    with open("data.txt", "r") as file:
-        return file.read()
+def read(extracted):
+    # with open("data.txt", "r") as file:
+    #     return file.read()
+    row = extracted.split(",")
+    row = [item.strip() for item in row]
+    band, city, date = row
+
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM events WHERE band=? AND city=? AND date=?", (band, city, date))
+    rows = cursor.fetchall()
+    return rows
 
 if __name__ == "__main__":
-    scraped = scrape(URL)
-    extracted = extract(scraped)
-    print(extracted)
-    content = read()
-    if extracted != "No upcoming tours":
-        if extracted not in content:
-            store(extracted)
-            send_email(extracted)
+    while True:
+        scraped = scrape(URL)
+        extracted = extract(scraped)
+        print(extracted)
+        if extracted != "No upcoming tours":
+            row = read(extracted)
+            # if extracted not in content:
+            if not row:
+                store(extracted)
+                send_email(extracted)
+        time.sleep(3)
