@@ -1,6 +1,10 @@
 import requests, selectorlib
 from datetime import datetime
 import time
+import sqlite3
+
+# Establish a connection with database
+connection = sqlite3.connect("data.db")
 
 URL = "https://programmer100.pythonanywhere.com/"
 HEADERS = {
@@ -15,10 +19,13 @@ def extract(source):
     return extractor.extract(source)["temperatures"]
 
 def store(time1, extracted):
-    with open("data.txt", "a") as file:
+    # with open("data.txt", "a") as file:
         # file.write(time1 + "," + extracted + "\n")
-        file.write(f"{time1},{extracted}\n")
-
+        # file.write(f"{time1},{extracted}\n")
+    # row = [time1, extracted]
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO temperatures VALUES(?,?)", (time1, extracted))
+    connection.commit()
 
 if __name__ == "__main__":
     while True:
