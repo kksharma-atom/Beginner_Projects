@@ -1,0 +1,5 @@
+1) Install Django
+2) Create a project
+3) Create an app for that project
+4) Connect the app to the project
+5) Run the app to see the results on the website
